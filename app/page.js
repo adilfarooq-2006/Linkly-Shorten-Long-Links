@@ -1,103 +1,64 @@
+"use client";
 import Image from "next/image";
-
+import { useState } from "react";
+import Link from "next/link";
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [url, seturl] = useState("")
+  const [shorturl, setshorturl] = useState("")
+  const [generated, setgenerated] = useState("")
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const generate = () => {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({
+      "url": url,
+      "shorturl": shorturl
+    });
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow"
+    };
+
+    fetch("/api/generate", requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        setgenerated(`${process.env.NEXT_PUBLIC_HOST}/${shorturl}`)
+        seturl("")
+        setshorturl("")
+        console.log(result)
+        alert(result.message)
+      })
+      .catch((error) => console.error(error));
+  }
+
+
+  return (
+    <>
+      <div className="flex flex-col items-center justify-center ">
+        <div className="main-text mt-20 text-white flex flex-col items-center justify-center">
+          <h1 className=" text-5xl px-10 md:text-5xl  text-center  bg-gradient-to-r from-[#EB568E] to-[#144EE3] bg-clip-text text-transparent font-bold ">Shorten Your Looong Links :)</h1>
+          <p className="md:px-125 px-10 text-center mt-5 text-gray-300">Linkly is an efficient and easy-to-use URL shortening service that streamlines your online experience.</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        <div className="inputs mt-5 flex items-center justify-center flex-col gap-3">
+          <input onChange={e => seturl(e.target.value)} value={url} className="bg-[#181E29] text-gray-300 px-4 focus:ring-[#C9CED6] p-4 w-[20rem] md:w-[30rem] rounded-full" type="text" placeholder="Enter the URL here" />
+          <input onChange={e => setshorturl(e.target.value)} value={shorturl} className="bg-[#181E29] text-gray-300 px-4 focus:ring-[#C9CED6] p-4 w-[20rem] md:w-[30rem] rounded-full" type="text" placeholder="Enter your desired name for URL" />
+          <button onClick={generate} className="text-white p-4 w-44 rounded-full font-semibold text-xl  bg-[#144EE3]">Shorten Now!</button>
+        </div>
+
+        {generated && <>
+          <div className="text-gray-300 mt-5 bg-[#181E29] p-4 rounded-lg px-10 ">
+            <div className="font-semibold text-xl ">Shorten Link:</div>
+            <Link className="text-white hover:underline-offset-4 hover:underline hover:text-blue-300" target="_blank" href={generated}>{generated}
+            </Link>
+          </div>
+        </>
+        }
+
+      </div>
+    </>
   );
 }
